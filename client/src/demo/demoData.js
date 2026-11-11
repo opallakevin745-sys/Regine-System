@@ -8,13 +8,6 @@
  * exactly like the real API. A fixed random seed keeps the dataset stable between runs.
  */
 
-export const DEMO_LOGINS = [
-  { role: 'Owner', username: 'admin', password: 'admin123' },
-  { role: 'Cashier', username: 'cashier', password: 'cashier123' },
-  { role: 'Manager', username: 'manager', password: 'manager123' },
-  { role: 'Staff', username: 'staff', password: 'staff123' }
-];
-
 const DAY = 24 * 60 * 60 * 1000;
 const MINUTE = 60 * 1000;
 const SIMULATED_DAYS = 30;

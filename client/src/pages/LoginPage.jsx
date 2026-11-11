@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { isDemo } from '../api';
-import { DEMO_LOGINS } from '../demo/demoData';
 import Icon from '../components/Icon';
 
 export default function LoginPage() {
@@ -67,21 +65,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {isDemo && (
-            <div className="demo-logins">
-              <span className="demo-logins-title">Demo accounts. Tap one to sign in:</span>
-              <div className="demo-login-grid">
-                {DEMO_LOGINS.map((account) => (
-                  <button type="button" key={account.username} className="demo-login" disabled={submitting} onClick={() => { setForm({ username: account.username, password: account.password }); signIn(account.username, account.password); }}>
-                    <strong>{account.role}</strong>
-                    <span>{account.username} / {account.password}</span>
-                  </button>
-                ))}
-              </div>
-              <small>Demo data is stored in your browser. Nothing is sent to a server.</small>
-            </div>
-          )}
-          {!isDemo && <small className="login-note">Authorized personnel only</small>}
+          <small className="login-note">Authorized personnel only</small>
         </div>
       </section>
     </main>
