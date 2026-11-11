@@ -19,7 +19,7 @@ export const env = {
   db: {
     host: process.env.DB_HOST || 'localhost',
     port: Number(process.env.DB_PORT || 3306),
-    name: process.env.DB_NAME || 'mutya_licios_lechon_manok',
+    name: process.env.DB_NAME || 'regineLechon',
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || ''
   }

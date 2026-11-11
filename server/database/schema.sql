@@ -105,6 +105,8 @@ CREATE TABLE IF NOT EXISTS payments (
   sale_id INT UNSIGNED NOT NULL UNIQUE,
   payment_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  amount_tendered DECIMAL(12,2) NULL,
+  change_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   payment_method ENUM('Cash', 'GCash', 'Bank Transfer', 'Other') NOT NULL,
   reference_number VARCHAR(100) NULL,
   payment_status ENUM('Paid', 'Pending', 'Cancelled', 'Refunded') NOT NULL DEFAULT 'Paid',

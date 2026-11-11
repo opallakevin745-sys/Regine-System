@@ -10,7 +10,9 @@ export const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  namedPlaceholders: true
+  namedPlaceholders: true,
+  // DATE columns (e.g. hire_date) stay as YYYY-MM-DD strings so they never shift across time zones.
+  dateStrings: ['DATE']
 });
 
 export async function checkDatabase() {

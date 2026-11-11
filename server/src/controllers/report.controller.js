@@ -146,15 +146,17 @@ export async function paymentReport(req, res, next) {
     if (status) { clauses.push('p.payment_status = ?'); values.push(status); }
     const predicate = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
     const [rows] = await pool.query(
-      `SELECT p.payment_date, s.sale_number, p.payment_method, p.amount, p.payment_status
+      `SELECT p.payment_date, s.sale_number, p.payment_method, p.reference_number, p.amount, p.payment_status
        FROM payments p INNER JOIN sales s ON s.id = p.sale_id ${predicate}
        ORDER BY p.payment_date DESC LIMIT 1000`, values
     );
+    const totalsClauses = status ? [...clauses] : [...clauses, "p.payment_status = 'Paid'"];
+    const totalsPredicate = totalsClauses.length ? `WHERE ${totalsClauses.join(' AND ')}` : '';
     const [methodTotals] = await pool.query(
       `SELECT p.payment_method, COALESCE(SUM(p.amount), 0) AS amount
-       FROM payments p ${predicate} GROUP BY p.payment_method`, values
+       FROM payments p ${totalsPredicate} GROUP BY p.payment_method`, values
     );
-    const [[totalRow]] = await pool.query(`SELECT COALESCE(SUM(p.amount), 0) AS total FROM payments p ${predicate}`, values);
+    const [[totalRow]] = await pool.query(`SELECT COALESCE(SUM(p.amount), 0) AS total FROM payments p ${totalsPredicate}`, values);
     const summary = { Cash: 0, GCash: 0, 'Bank Transfer': 0, Other: 0, total: Number(totalRow.total) };
     for (const row of methodTotals) summary[row.payment_method] = Number(row.amount);
     res.json({ success: true, data: { rows, summary } });

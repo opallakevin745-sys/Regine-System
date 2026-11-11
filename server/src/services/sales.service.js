@@ -65,10 +65,12 @@ export async function createSale({ userId, items, discount = 0, payment }) {
       );
     }
 
+    // `amount` is what was applied to the sale; tendered cash and change are tracked separately
+    // so payment totals and reports never count the change handed back to the customer.
     await connection.query(
-      `INSERT INTO payments (sale_id, amount, payment_method, reference_number, payment_status)
-       VALUES (?, ?, ?, ?, 'Paid')`,
-      [saleResult.insertId, centsToMoney(paymentCents), payment.payment_method, payment.reference_number || null]
+      `INSERT INTO payments (sale_id, amount, amount_tendered, change_amount, payment_method, reference_number, payment_status)
+       VALUES (?, ?, ?, ?, ?, ?, 'Paid')`,
+      [saleResult.insertId, centsToMoney(totalCents), centsToMoney(paymentCents), centsToMoney(paymentCents - totalCents), payment.payment_method, String(payment.reference_number || '').trim() || null]
     );
     await connection.commit();
     return { id: saleResult.insertId, sale_number: saleNumber, subtotal: centsToMoney(subtotalCents), discount: centsToMoney(discountCents), total_amount: centsToMoney(totalCents), amount_paid: centsToMoney(paymentCents), change: centsToMoney(paymentCents - totalCents) };

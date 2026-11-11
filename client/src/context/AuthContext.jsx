@@ -1,9 +1,10 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { apiRequest, setUnauthorizedHandler } from '../api';
 
 const AuthContext = createContext(null);
-const devBypass = import.meta.env.VITE_AUTH_BYPASS === 'true';
-const devUser = { username: 'admin', role: 'Owner', firstName: 'System', lastName: 'Administrator' };
+// Development-only shortcut; ignored in production builds.
+const devBypass = import.meta.env.DEV && import.meta.env.VITE_AUTH_BYPASS === 'true';
+const devUser = { id: 1, username: 'admin', role: 'Owner', firstName: 'System', lastName: 'Administrator' };
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -19,43 +20,35 @@ export function AuthProvider({ children }) {
     if (devBypass) {
       setUser(devUser);
       setLoading(false);
-      return () => setUnauthorizedHandler(() => {});
-    }
-
-    if (!localStorage.getItem('mutya_token')) {
+    } else if (!localStorage.getItem('mutya_token')) {
       setLoading(false);
-      return () => setUnauthorizedHandler(() => {});
+    } else {
+      apiRequest('/auth/me')
+        .then((response) => setUser(response.data.user))
+        .catch(() => setUser(null))
+        .finally(() => setLoading(false));
     }
-
-    apiRequest('/auth/me')
-      .then((response) => setUser(response.data.user))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-
     return () => setUnauthorizedHandler(() => {});
   }, []);
 
-  async function login(username, password) {
-    const response = await apiRequest('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username, password })
-    });
+  const login = useCallback(async (username, password) => {
+    const response = await apiRequest('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
     localStorage.setItem('mutya_token', response.data.token);
     setUser(response.data.user);
-  }
+    return response.data.user;
+  }, []);
 
-  async function logout() {
-    const token = localStorage.getItem('mutya_token');
+  const logout = useCallback(async () => {
+    try {
+      if (localStorage.getItem('mutya_token')) await apiRequest('/auth/logout', { method: 'POST' });
+    } catch { /* the token is discarded either way */ }
     localStorage.removeItem('mutya_token');
     setUser(null);
     setLoading(false);
+  }, []);
 
-    try {
-      if (token) await apiRequest('/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
-    } catch {}
-  }
-
-  return <AuthContext.Provider value={{ user, loading, login, logout }}>{children}</AuthContext.Provider>;
+  const value = useMemo(() => ({ user, loading, login, logout }), [user, loading, login, logout]);
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

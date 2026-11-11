@@ -5,12 +5,17 @@ export async function listCategories(req, res, next) {
   try {
     const search = `%${String(req.query.search || '').trim()}%`;
     const values = [search];
-    const where = ['category_name LIKE ?'];
+    const where = ['c.category_name LIKE ?'];
     if (['Active', 'Inactive'].includes(req.query.status)) {
-      where.push('status = ?');
+      where.push('c.status = ?');
       values.push(req.query.status);
     }
-    const [rows] = await pool.query(`SELECT id, category_name, description, status, created_at, updated_at FROM categories WHERE ${where.join(' AND ')} ORDER BY category_name`, values);
+    const [rows] = await pool.query(
+      `SELECT c.id, c.category_name, c.description, c.status, c.created_at, c.updated_at,
+        (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id) AS product_count
+       FROM categories c WHERE ${where.join(' AND ')} ORDER BY c.category_name`,
+      values
+    );
     res.json({ success: true, data: { categories: rows } });
   } catch (error) { next(error); }
 }

@@ -4,8 +4,9 @@ import { authenticateToken } from '../middleware/auth.js';
 import { authorizeRoles } from '../middleware/authorize.js';
 const router = Router();
 router.use(authenticateToken);
-router.get('/', listEmployees);
-router.get('/:id', getEmployee);
+// Employee records (phones, hire dates, linked accounts) are visible to Owner and Manager only.
+router.get('/', authorizeRoles('Owner', 'Manager'), listEmployees);
+router.get('/:id', authorizeRoles('Owner', 'Manager'), getEmployee);
 router.post('/', authorizeRoles('Owner', 'Manager'), createEmployee);
 router.put('/:id', authorizeRoles('Owner', 'Manager'), updateEmployee);
 router.patch('/:id/status', authorizeRoles('Owner', 'Manager'), updateEmployeeStatus);
