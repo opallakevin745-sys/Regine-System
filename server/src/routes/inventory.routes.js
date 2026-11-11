@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { getInventoryProduct, listInventory, lowStock, productLogs } from '../controllers/inventory.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
+const router = Router();
+router.use(authenticateToken);
+router.get('/', listInventory);
+router.get('/low-stock', lowStock);
+router.get('/:productId/logs', productLogs);
+router.get('/:productId', getInventoryProduct);
+export default router;

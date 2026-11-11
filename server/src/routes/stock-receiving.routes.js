@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { getReceiving, listReceiving, postReceiving } from '../controllers/stock-receiving.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { authorizeRoles } from '../middleware/authorize.js';
+const router = Router();
+router.use(authenticateToken);
+router.get('/', authorizeRoles('Owner', 'Manager', 'Staff'), listReceiving);
+router.get('/:id', authorizeRoles('Owner', 'Manager', 'Staff'), getReceiving);
+router.post('/', authorizeRoles('Owner', 'Manager', 'Staff'), postReceiving);
+export default router;

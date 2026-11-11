@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { createSupplier, getSupplier, listSuppliers, updateSupplier, updateSupplierStatus } from '../controllers/supplier.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { authorizeRoles } from '../middleware/authorize.js';
+const router = Router();
+router.use(authenticateToken);
+router.get('/', listSuppliers);
+router.get('/:id', getSupplier);
+router.post('/', authorizeRoles('Owner', 'Manager'), createSupplier);
+router.put('/:id', authorizeRoles('Owner', 'Manager'), updateSupplier);
+router.patch('/:id/status', authorizeRoles('Owner', 'Manager'), updateSupplierStatus);
+export default router;

@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { createCategory, getCategory, listCategories, updateCategory, updateCategoryStatus } from '../controllers/category.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { authorizeRoles } from '../middleware/authorize.js';
+const router = Router();
+router.use(authenticateToken);
+router.get('/', listCategories);
+router.get('/:id', getCategory);
+router.post('/', authorizeRoles('Owner', 'Manager'), createCategory);
+router.put('/:id', authorizeRoles('Owner', 'Manager'), updateCategory);
+router.patch('/:id/status', authorizeRoles('Owner', 'Manager'), updateCategoryStatus);
+export default router;

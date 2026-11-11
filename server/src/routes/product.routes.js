@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { createProduct, getProduct, listProducts, updateProduct, updateProductStatus } from '../controllers/product.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { authorizeRoles } from '../middleware/authorize.js';
+const router = Router();
+router.use(authenticateToken);
+router.get('/', listProducts);
+router.get('/:id', getProduct);
+router.post('/', authorizeRoles('Owner', 'Manager'), createProduct);
+router.put('/:id', authorizeRoles('Owner', 'Manager'), updateProduct);
+router.patch('/:id/status', authorizeRoles('Owner', 'Manager'), updateProductStatus);
+export default router;

@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { createUser, getUser, listUsers, resetPassword, updateUser, updateUserStatus } from '../controllers/user.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { authorizeRoles } from '../middleware/authorize.js';
+const router = Router();
+router.use(authenticateToken, authorizeRoles('Owner'));
+router.get('/', listUsers);
+router.get('/:id', getUser);
+router.post('/', createUser);
+router.put('/:id', updateUser);
+router.patch('/:id/status', updateUserStatus);
+router.post('/:id/reset-password', resetPassword);
+export default router;

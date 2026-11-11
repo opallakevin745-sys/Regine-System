@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { inventoryReport, paymentReport, productSalesReport, receivingReport, salesReport, supplierReport } from '../controllers/report.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { authorizeRoles } from '../middleware/authorize.js';
+const router = Router();
+router.use(authenticateToken, authorizeRoles('Owner', 'Manager'));
+router.get('/sales', salesReport);
+router.get('/product-sales', productSalesReport);
+router.get('/inventory', inventoryReport);
+router.get('/stock-receiving', receivingReport);
+router.get('/payments', paymentReport);
+router.get('/suppliers', supplierReport);
+export default router;

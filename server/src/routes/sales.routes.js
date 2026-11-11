@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { cancelCompletedSale, getSale, listSales, postSale, updateSaleStatus } from '../controllers/sales.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { authorizeRoles } from '../middleware/authorize.js';
+const router = Router();
+router.use(authenticateToken);
+router.get('/', authorizeRoles('Owner', 'Manager', 'Cashier'), listSales);
+router.get('/:id', authorizeRoles('Owner', 'Manager', 'Cashier'), getSale);
+router.post('/', authorizeRoles('Owner', 'Manager', 'Cashier'), postSale);
+router.patch('/:id/cancel', authorizeRoles('Owner', 'Manager'), cancelCompletedSale);
+router.patch('/:id/status', authorizeRoles('Owner', 'Manager'), updateSaleStatus);
+export default router;

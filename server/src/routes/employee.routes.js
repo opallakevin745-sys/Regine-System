@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { createEmployee, getEmployee, listEmployees, updateEmployee, updateEmployeeStatus } from '../controllers/employee.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { authorizeRoles } from '../middleware/authorize.js';
+const router = Router();
+router.use(authenticateToken);
+router.get('/', listEmployees);
+router.get('/:id', getEmployee);
+router.post('/', authorizeRoles('Owner', 'Manager'), createEmployee);
+router.put('/:id', authorizeRoles('Owner', 'Manager'), updateEmployee);
+router.patch('/:id/status', authorizeRoles('Owner', 'Manager'), updateEmployeeStatus);
+export default router;
